@@ -147,7 +147,7 @@ export class Test extends Component {
 顶层组件，例如页面组件使用Container，因为通常涉及状态变更；Presentational组件一般是普通UI组件，无状态或者很少状态。
 
 ###6.一个全局store，组件私有状态可通过中介者通信，方便解耦
-![communicate](./imges/store.png)
+![communicate](./imgs/store.png)
 
 ###7.工具相关
 
