@@ -1,0 +1,313 @@
+Github: https://github.com/LukeLin/universal-react-mobx
+
+支持单页，多页服务端渲染。
+
+
+
+## Mobx介绍：
+
+#### Anything that can be derived from the application state, should be derived. Automatically.
+
+意思是：一切能从应用状态派发的都应该自动派发。
+
+mobx提供了存储和更新应用状态的机制，与React组合使用是一组非常强大的组合，我们只需要更新应用状态，react就会自动渲染，而且渲染性能很高效。
+
+
+
+## 与Redux比较：
+
+Redux是一个状态管理容器，它通过把状态组织成一整棵状态树，当某个状态被修改，就会生成新的状态树。Redux的机制使得我们的状态可被预测和恢复，于是可以做到日志记录，各个时间段状态查看，让我们将应用状态一切掌握在手中。
+
+下面说下个人认为是Redux的缺点的地方：
+#### 缺点1. 编写action和reducer的代码比较麻烦，通常要切换不同文件。
+Redux通过action和reducer来改变store，这就意味着我们每增加一个新功能就需要编写对应的action和reducer。
+下面举个官方给的todoList为例：
+action.js
+``` javascript
+/*
+ * action 类型
+ */
+
+export const ADD_TODO = 'ADD_TODO';
+export const COMPLETE_TODO = 'COMPLETE_TODO';
+export const SET_VISIBILITY_FILTER = 'SET_VISIBILITY_FILTER'
+
+/*
+ * 其它的常量
+ */
+
+export const VisibilityFilters = {
+  SHOW_ALL: 'SHOW_ALL',
+  SHOW_COMPLETED: 'SHOW_COMPLETED',
+  SHOW_ACTIVE: 'SHOW_ACTIVE'
+};
+
+/*
+ * action 创建函数
+ */
+
+export function addTodo(text) {
+  return { type: ADD_TODO, text }
+}
+
+export function completeTodo(index) {
+  return { type: COMPLETE_TODO, index }
+}
+
+export function setVisibilityFilter(filter) {
+  return { type: SET_VISIBILITY_FILTER, filter }
+}
+```
+
+reducer.js
+```javascript
+import { combineReducers } from 'redux'
+import { ADD_TODO, COMPLETE_TODO, SET_VISIBILITY_FILTER, VisibilityFilters } from './actions'
+const { SHOW_ALL } = VisibilityFilters
+
+function visibilityFilter(state = SHOW_ALL, action) {
+  switch (action.type) {
+    case SET_VISIBILITY_FILTER:
+      return action.filter
+    default:
+      return state
+  }
+}
+
+function todos(state = [], action) {
+  switch (action.type) {
+    case ADD_TODO:
+      return [
+        ...state,
+        {
+          text: action.text,
+          completed: false
+        }
+      ]
+    case COMPLETE_TODO:
+      return [
+        ...state.slice(0, action.index),
+        Object.assign({}, state[action.index], {
+          completed: true
+        }),
+        ...state.slice(action.index + 1)
+      ]
+    default:
+      return state
+  }
+}
+
+const todoApp = combineReducers({
+  visibilityFilter,
+  todos
+})
+
+export default todoApp
+```
+从上面可以看出一个非常简单的todoList如果用Redux来写会显得很复杂，我们需要触发action，然后在更变reducer的时候需要找到数据对应的位置进行更改。相信很多用Redux写列表状态变化的开发者都会觉得为什么Redux把这些搞得这么复杂。
+
+#### 缺点2：因为Redux是基于状态树变化生成新的状态树，导致不必要的组件渲染。
+Redux的状态树变化就会生成新的状态树，意味着从发生变化的节点到根节点都会生成新的引用，这就导致组件会造成不必要的渲染，虽然使用shouldComponentUpdate可以解决这个问题，但shouldComponent自身也会有计算损耗，而且shouldComponent解决不了store变化根组件一定会重复渲染的问题。
+
+#### 缺点3：开发成本变高，相应的维护成本也变高。
+Redux希望你尽量扁平化数据，这样方便在reducer里面操作，但往往后端人员并不会给你设计扁平化数据，就算使用normalize也使得开发成本变高。
+
+### Mobx使一切变得非常简单
+同样是todoList的例子，我们来看看mobx怎么写
+
+
+## Mobx的使用：
+store.js
+``` javascript
+import {
+    observable,
+    computed,
+    extendObservable,
+    action,
+    runInAction,
+    asFlat
+} from 'mobx';
+
+import TodoModel from '../models/TodoModel';
+
+class TodoStore {
+    // only the children of the value becomes observable
+    @observable todos = asFlat([]);
+
+    @computed get unfinishedTodoCount() {
+        return this.todos.filter(todo => !todo.finished).length;
+    }
+
+    constructor(state = {}) {
+        // required in strict mode to be allowed to update state:
+        runInAction('initialize TodoStore', () => {
+            extendObservable(this, state);
+        });
+    }
+
+    @action
+    addTodo(todo) {
+        todo && this.todos.push(todo);
+    }
+
+    @action
+    removeTodo(index){
+        this.todos.splice(index, 1);
+    }
+
+    static fromJS(state) {
+        if(state && state.todos) {
+            let todoStore = new TodoStore({
+                todos: state.todos.map(item => TodoModel.fromJS(item))
+            });
+            return todoStore;
+        }
+    }
+}
+
+export default TodoStore;
+
+```
+
+TodoModel
+``` javascript
+import {
+    observable,
+    extendObservable,
+    action,
+    runInAction
+} from 'mobx';
+
+class TodoModel {
+    id;
+    @observable title = '';
+    @observable finished = false;
+
+	constructor(data) {
+        runInAction('initialize TodoModel', () => {
+            extendObservable(this, data);
+        });
+	}
+
+    @action
+    setFinished(finished) {
+        this.finished = finished
+    }
+
+    static fromJS(object) {
+        return new TodoModel(object);
+    }
+}
+
+export default TodoModel;
+
+```
+Mobx是经典的面向对象思想，我们通过更改对象的值，Mobx就会自动触发行为。这里面使用的"@action"装饰器是为了在useStrict模式下安全地修改数据。
+在上面的代码还看不出Mobx的明显优势，但我们和React结合使用就会发现比Redux简直简单方便N倍。
+
+## 与React组合：
+通过mobx-react，我们可以非常方便的把Mobx运用到React上
+下面是TodoList的组件例子：
+TodoList.jsx
+``` javascript
+import React, { Component } from 'react';
+import { observer } from 'mobx-react';
+import Base from '../../pages/Base';
+
+import Todo from './Todo';
+import TodoModel from '../../models/TodoModel.js';
+
+@observer
+class TodoList extends Base {
+    constructor(props, context) {
+        super(props, context);
+
+        // this.addTodo = this.addTodo.bind(this);
+        // this.removeTodo = this.removeTodo.bind(this);
+    }
+
+    onAddTodo(e) {
+        e.preventDefault();
+
+        let { todoList } = this.props;
+
+        todoList.addTodo(new TodoModel({
+            id: todoList.todos.length,
+            title: 'some text' + todoList.todos.length
+        }));
+    }
+
+    onRemoveTodo(e, index){
+        e.preventDefault();
+
+        let { todoList } = this.props;
+
+        todoList.removeTodo(index);
+    }
+
+    render() {
+        let { todoList } = this.props;
+
+        return (
+            <div>
+                <ul>
+                    {todoList.todos.map((todo, index) => {
+                        return (
+                            <Todo todo={todo}
+                        index={ index }
+                            key={todo.id} 
+                            addTodo={this.onAddTodo}
+                            removeTodo={ this.onRemoveTodo }/>
+                        );
+                    })}
+                </ul>
+                Tasks left: {todoList.unfinishedTodoCount}
+            </div>
+        );
+    }
+}
+
+export default TodoList;
+
+@observer
+class Todo extends Base {
+    constructor(props, context) {
+        super(props, context);
+
+        // this.onChange = this.onChange.bind(this);
+        // this.removeTodo = this.removeTodo.bind(this);
+    }
+
+    onChange() {
+        let {todo} = this.props;
+
+        todo.setFinished(!todo.finished)
+    }
+
+    onRemoveTodo(e){
+        this.props.removeTodo(e, this.props.index);
+    }
+
+    render() {
+        let {todo, index} = this.props;
+
+        return (
+            <li>
+                <input
+                    type="checkbox"
+                    checked={todo.finished}
+                    onChange={ this.onChange }
+                />{todo.title}
+                <button onClick={ this.props.addTodo }>add</button>
+                <button onClick={ this.onRemoveTodo }>remove</button>
+            </li>
+        );
+    }
+}
+
+```
+
+
+## 服务端渲染：
+
+## 总结：
