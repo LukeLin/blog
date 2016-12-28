@@ -1,4 +1,4 @@
-先推荐下我的基于mobx的react服务端渲染模版：
+先推荐下我的基于mobx的react服务端渲染解决方案：
 Github: https://github.com/LukeLin/universal-react-mobx
 
 支持单页，多页服务端渲染。
