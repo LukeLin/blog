@@ -246,3 +246,6 @@ Mobx相比Redux的劣势就是我们不能像Redux那样将状态一切掌握，
 
 需要了解更多关于mobx和react的解决方案可以参考下下面链接：
 [https://github.com/LukeLin/universal-react-mobx](https://github.com/LukeLin/universal-react-mobx)
+
+另外推荐一篇关于Mobx和React构建高性能应用的文章：
+[https://www.mendix.com/tech-blog/making-react-reactive-pursuit-high-performing-easily-maintainable-react-apps/](https://www.mendix.com/tech-blog/making-react-reactive-pursuit-high-performing-easily-maintainable-react-apps/)
