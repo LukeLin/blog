@@ -1,5 +1,5 @@
 先推荐下我的基于mobx的react服务端渲染解决方案：
-Github: https://github.com/LukeLin/universal-react-mobx
+Github: [https://github.com/LukeLin/universal-react-mobx](https://github.com/LukeLin/universal-react-mobx)
 
 支持单页，多页服务端渲染。
 
@@ -240,4 +240,9 @@ class Todo extends Base {
 我封装了一个高阶组件用来请求首次页面显示需要的数据，通过这个高阶组件我们可以非常方便的进行同构请求，而内外网调用可以使用package.json配置“main”和“browser”字段区分前后端调用。
 
 ## 总结：
-Mobx提供了更简单和伸缩的状态管理，我们只需要更改状态就会自动触发组件渲染。它使我们开发效率更快，开发过程变得更简单了。Mobx相比Redux的劣势就是我们不能像Redux那样将状态一切掌握，在调试和排查问题方面没有Redux方便。Mobx也像Redux一样提供了方便调试的devTools的功能。它能够精准控制需要渲染的组件，而且没有像Redux传递渲染的问题。虽然目前Mobx还没Redux火热，但我相信未来Mobx会有很大的潜力。
+Mobx提供了更简单和伸缩的状态管理，我们只需要更改状态就会自动触发组件渲染。它使我们开发效率更快，开发过程变得更简单了。
+Mobx相比Redux的劣势就是我们不能像Redux那样将状态一切掌握，在调试和排查问题方面没有Redux方便。Mobx也像Redux一样提供了方便调试的devTools的功能。它能够精准控制需要渲染的组件，而且没有像Redux传递渲染的问题。
+虽然目前Mobx还没Redux火热，但我相信未来Mobx会有很大的潜力。
+
+需要了解更多关于mobx和react的解决方案可以参考下下面链接：
+[https://github.com/LukeLin/universal-react-mobx](https://github.com/LukeLin/universal-react-mobx)
