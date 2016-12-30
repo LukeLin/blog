@@ -13,98 +13,20 @@ Github: https://github.com/LukeLin/universal-react-mobx
 
 mobx提供了存储和更新应用状态的机制，与React组合使用是一组非常强大的组合，我们只需要更新应用状态，react就会自动渲染，而且渲染性能很高效。
 
-
-
 ## 与Redux比较：
 
 Redux是一个状态管理容器，它通过把状态组织成一整棵状态树，当某个状态被修改，就会生成新的状态树。Redux的机制使得我们的状态可被预测和恢复，于是可以做到日志记录，各个时间段状态查看，让我们将应用状态一切掌握在手中。
 
+### Redux和React结合使用
+下面举个官方给的todoList为例：
+代码就不一一贴出来，请查看[Redux官方Todo例子](http://cn.redux.js.org/docs/basics/ExampleTodoList.html)
+
+Redux和React-Redux运行原理：
+![Redux和React-Redux运行原理](./imgs/react-redux.jpg)
+
 下面说下个人认为是Redux的缺点的地方：
 #### 缺点1. 编写action和reducer的代码比较麻烦，通常要切换不同文件。
 Redux通过action和reducer来改变store，这就意味着我们每增加一个新功能就需要编写对应的action和reducer。
-下面举个官方给的todoList为例：
-action.js
-``` javascript
-/*
- * action 类型
- */
-
-export const ADD_TODO = 'ADD_TODO';
-export const COMPLETE_TODO = 'COMPLETE_TODO';
-export const SET_VISIBILITY_FILTER = 'SET_VISIBILITY_FILTER'
-
-/*
- * 其它的常量
- */
-
-export const VisibilityFilters = {
-  SHOW_ALL: 'SHOW_ALL',
-  SHOW_COMPLETED: 'SHOW_COMPLETED',
-  SHOW_ACTIVE: 'SHOW_ACTIVE'
-};
-
-/*
- * action 创建函数
- */
-
-export function addTodo(text) {
-  return { type: ADD_TODO, text }
-}
-
-export function completeTodo(index) {
-  return { type: COMPLETE_TODO, index }
-}
-
-export function setVisibilityFilter(filter) {
-  return { type: SET_VISIBILITY_FILTER, filter }
-}
-```
-
-reducer.js
-```javascript
-import { combineReducers } from 'redux'
-import { ADD_TODO, COMPLETE_TODO, SET_VISIBILITY_FILTER, VisibilityFilters } from './actions'
-const { SHOW_ALL } = VisibilityFilters
-
-function visibilityFilter(state = SHOW_ALL, action) {
-  switch (action.type) {
-    case SET_VISIBILITY_FILTER:
-      return action.filter
-    default:
-      return state
-  }
-}
-
-function todos(state = [], action) {
-  switch (action.type) {
-    case ADD_TODO:
-      return [
-        ...state,
-        {
-          text: action.text,
-          completed: false
-        }
-      ]
-    case COMPLETE_TODO:
-      return [
-        ...state.slice(0, action.index),
-        Object.assign({}, state[action.index], {
-          completed: true
-        }),
-        ...state.slice(action.index + 1)
-      ]
-    default:
-      return state
-  }
-}
-
-const todoApp = combineReducers({
-  visibilityFilter,
-  todos
-})
-
-export default todoApp
-```
 从上面可以看出一个非常简单的todoList如果用Redux来写会显得很复杂，我们需要触发action，然后在更变reducer的时候需要找到数据对应的位置进行更改。相信很多用Redux写列表状态变化的开发者都会觉得为什么Redux把这些搞得这么复杂。
 
 #### 缺点2：因为Redux是基于状态树变化生成新的状态树，导致不必要的组件渲染。
@@ -114,6 +36,7 @@ Redux的状态树变化就会生成新的状态树，意味着从发生变化的
 Redux希望你尽量扁平化数据，这样方便在reducer里面操作，但往往后端人员并不会给你设计扁平化数据，就算使用normalize也使得开发成本变高。
 
 ### Mobx使一切变得非常简单
+不了解Mobx？可以看下它的[文档](http://mobxjs.github.io/mobx/index.html)
 Mobx不但解决了Redux上面列出的三个问题，还使得一切变得简单。
 同样是todoList的例子，我们来看看mobx怎么写
 
@@ -317,4 +240,4 @@ class Todo extends Base {
 我封装了一个高阶组件用来请求首次页面显示需要的数据，通过这个高阶组件我们可以非常方便的进行同构请求，而内外网调用可以使用package.json配置“main”和“browser”字段区分前后端调用。
 
 ## 总结：
-Mobx提供了更简单和伸缩的状态管理，我们只需要更改状态就会自动触发组件渲染。它使我们开发效率更快，开发过程变得更简单了。Mobx相比Redux的劣势就是我们不能像Redux那样将状态一切掌握，在调试和排查问题方面没有Redux方便。
+Mobx提供了更简单和伸缩的状态管理，我们只需要更改状态就会自动触发组件渲染。它使我们开发效率更快，开发过程变得更简单了。Mobx相比Redux的劣势就是我们不能像Redux那样将状态一切掌握，在调试和排查问题方面没有Redux方便。Mobx也像Redux一样提供了方便调试的devTools的功能。它能够精准控制需要渲染的组件，
