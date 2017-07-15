@@ -26,7 +26,6 @@ npm install\
 Test.vue
 ``` html
 <script>
-<script>
 export default {
     props: ['onClick', 'isShow'],
 
@@ -45,8 +44,6 @@ export default {
         );
     }
 }
-</script>
-
 </script>
 ```
 可以看到我们把jsx写在了render方法里面，render方法是vue2.0才支持的，用来提供对虚拟DOM的支持，也就是说只有vue2.0才支持jsx语法转换。
@@ -213,6 +210,14 @@ export default {
   opacity: 0
 }
 </style>
+```
+我们还可以用原生vnode的数据格式使用自定义指令：
+``` jsx
+const directives = [
+  { name: 'my-dir', value: 123, modifiers: { abc: true } }
+]
+
+return <div {...{ directives }}/>
 ```
 
 ### 扩展
