@@ -164,4 +164,4 @@ Quill使用了和其它富文本编辑器不一样的理念来表达和处理富
 1. Quill用到了MutationObserver，这表示对一些老式的浏览器会不支持。
 2. Quill的Range和Selection底层用的原生的api，我们也知道原生的Selection／Range本来就比较坑，不然就不会有人自己实现一套Selection和Range了。
 3. 刚刚说的，就是文档太少了，Modules的配置项和Parchment的使用，很难找到深入了解的文章，只能自己去看源码。
-相信未来Quill一定会有很大潜力。
+总的来说Quill还是给我们带来了很多好处，相信未来Quill一定会越来越好。
