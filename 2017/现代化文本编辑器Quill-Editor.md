@@ -158,5 +158,10 @@ Parchment有关的资料：
 - [https://github.com/quilljs/parchment](https://github.com/quilljs/parchment)
 
 ## 总结
-Quill的一个缺点就是文档比较少的，而且都是英文文档。如果我们只是需要基本功能，我们可以不用了解api，Delta和Parchment的概念，只需要简单引入js然后初始化就可以了。但如果设涉及到个性化的功能时，我们就必须了解和熟悉这些概念。
-Quill使用了和其它富文本编辑器不一样的理念来表达和处理富文本，让我们摆脱了HTML和DOM带来的烦恼，使一切都变得简化，相信未来Quill一定会有很大潜力。
+Quill的一个缺点就是文档比较少的，而且都是英文文档。如果我们只是需要基本功能，我们可以不用了解api，Delta和Parchment的概念，只需要简单引入js然后初始化就可以了。但如果设涉及到个性化的功能时，我们就必须了解和熟悉这些概念，而且必须查看Quill的源码，好在Quill的源码实现还是比较优雅的。
+Quill使用了和其它富文本编辑器不一样的理念来表达和处理富文本，让我们摆脱了HTML和DOM带来的烦恼，使一切都变得简化.
+当然Quill也会有坑，毕竟整个富文本编辑就是一个大坑。我目前遇到的几个问题就是：
+1. Quill用到了MutationObserver，这表示对一些老式的浏览器会不支持。
+2. Quill的Range和Selection底层用的原生的api，我们也知道原生的Selection／Range本来就比较坑，不然就不会有人自己实现一套Selection和Range了。
+3. 刚刚说的，就是文档太少了，Modules的配置项和Parchment的使用，很难找到深入了解的文章，只能自己去看源码。
+相信未来Quill一定会有很大潜力。
