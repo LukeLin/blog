@@ -107,7 +107,7 @@ npm install eslint-plugin-react-hooks -D
 
 ESLint配置：
 
-``` json
+``` jsonc
 {
     "plugins": [
         // ...
