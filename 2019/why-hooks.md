@@ -41,15 +41,15 @@ ESLint配置：
 
 ``` json
 {
-  "plugins": [
-    // ...
-    "react-hooks"
-  ],
-  "rules": {
-    // ...
-    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
-    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
-  }
+    "plugins": [
+        // ...
+        "react-hooks"
+    ],
+    "rules": {
+        // ...
+        "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+        "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
+    }
 }
 ```
 
@@ -60,22 +60,22 @@ ESLint配置：
 
 ``` javascript
 class Example extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      count: 0
-    };
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+        count: 0
+        };
+    }
 
-  onBtnClick = () => {
-      this.setState({
-          count: ++this.state.count
-      });
-  }
+    onBtnClick = () => {
+        this.setState({
+            count: ++this.state.count
+        });
+    }
 
-  render() {
-      return <div><span>{this.state.count}</span><button onClick={this.onBtnClick}>按钮</button></div>;
-  }
+    render() {
+        return <div><span>{this.state.count}</span><button onClick={this.onBtnClick}>按钮</button></div>;
+    }
 }
 ```
 
@@ -104,32 +104,32 @@ useCallback主要是解决re-render的问题，后面会介绍到。
 ``` javascript
 // 第一种
 function ExampleWithManyStates() {
-  // Declare multiple state variables!
-  const [age, setAge] = useState(42);
-  const [fruit, setFruit] = useState('banana');
-  const [todos, setTodos] = useState([{ text: 'Learn Hooks' }]);
+    // Declare multiple state variables!
+    const [age, setAge] = useState(42);
+    const [fruit, setFruit] = useState('banana');
+    const [todos, setTodos] = useState([{ text: 'Learn Hooks' }]);
 
-  // ...
+    // ...
 }
 
 // 第二种
 function ExampleWithManyStates2() {
-  // Declare multiple state variables!
-  const [state, setState] = useState({
-      age: 42,
-      fruit: 'banana',
-      todos: [{ text: 'Learn Hooks' }]
-  });
-
-  // ...
-
-  // setState example
-  const handler = useCallback(() => {
-    setState((state) => {
-        return { ...state, age: 18 };
+    // Declare multiple state variables!
+    const [state, setState] = useState({
+        age: 42,
+        fruit: 'banana',
+        todos: [{ text: 'Learn Hooks' }]
     });
-  }, []);
-  // ...
+
+    // ...
+
+    // setState example
+    const handler = useCallback(() => {
+        setState((state) => {
+            return { ...state, age: 18 };
+        });
+    }, []);
+    // ...
 }
 ```
 
