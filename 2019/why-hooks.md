@@ -18,16 +18,78 @@
 
 ## Hooks的思想
 
-什么是Hooks？Hooks是一个React状态和生命周期的钩子。Hooks可以很好的解决Class组件存在的问题。我们不再需要记各种生命周期方法，直接使用useEffect就行了，使用Hooks后我们也不再需要this了。
+### 什么是Hooks？
+
+Hooks是一个React状态和生命周期的钩子。Hooks可以很好的解决Class组件存在的问题。我们不再需要记各种生命周期方法，直接使用useEffect就行了，使用Hooks后我们也不再需要this了。
 使用Hooks有一些潜规则，在使用之前需要我们先了解，不然容易一脸疑惑。
 
-### 只在函数组件最顶层调用Hooks
+#### 只在函数组件最顶层调用Hooks
 
 不要在循环语句、条件语句或者嵌套函数内调用Hooks。这是为了确保在组件渲染时Hooks被调用的顺序是一致的。
 
-### 只在React函数组件内使用Hooks
+#### 只在React函数组件内使用Hooks
 
 不要在正常JS函数里使用Hooks，但你可以在React函数组件和自定义Hooks里面调用Hooks。
+
+### Hooks的运行机制
+
+Hooks是怎么知道状态对应哪个useState？答案是依赖于Hooks的调用顺序。
+
+``` javascript
+function Form() {
+    // 1. Use the name state variable
+    const [name, setName] = useState('Mary');
+
+    // 2. Use an effect for persisting the form
+    useEffect(function persistForm() {
+        localStorage.setItem('formData', name);
+    });
+
+    // 3. Use the surname state variable
+    const [surname, setSurname] = useState('Poppins');
+
+    // 4. Use an effect for updating the title
+    useEffect(function updateTitle() {
+        document.title = name + ' ' + surname;
+    });
+
+    // ...
+}
+```
+
+上面的代码每次渲染顺序是：
+
+``` javascript
+// ------------
+// First render
+// ------------
+useState('Mary')           // 1. Initialize the name state variable with 'Mary'
+useEffect(persistForm)     // 2. Add an effect for persisting the form
+useState('Poppins')        // 3. Initialize the surname state variable with 'Poppins'
+useEffect(updateTitle)     // 4. Add an effect for updating the title
+
+// -------------
+// Second render
+// -------------
+useState('Mary')           // 1. Read the name state variable (argument is ignored)
+useEffect(persistForm)     // 2. Replace the effect for persisting the form
+useState('Poppins')        // 3. Read the surname state variable (argument is ignored)
+useEffect(updateTitle)     // 4. Replace the effect for updating the title
+
+// ...
+```
+
+只要每次渲染Hooks的调用顺序一样，React就可以把它们和局部状态联系起来。
+如果我们想要把Hook放在条件语句里就会导致出问题，这就是为什么我们只在函数组件最顶层调用Hooks。如果我们想要有条件判断地运行Hooks，可以把条件语句放在Hooks里面：
+
+``` javascript
+useEffect(function persistForm() {
+    // 👍 We're not breaking the first rule anymore
+    if (name !== '') {
+        localStorage.setItem('formData', name);
+    }
+});
+```
 
 ## React内置Hooks介绍
 
@@ -55,8 +117,13 @@ ESLint配置：
 
 - useState
 
+    ``` javascript
+    const [state, setState] = useState(initialState);
+    ```
+
    useState是用来申明组件状态变量的Hook，等价于Class组件的this.state。
-   Class组件申明状态：
+
+Class组件申明状态：
 
 ``` javascript
 class Example extends React.Component {
@@ -79,7 +146,7 @@ class Example extends React.Component {
 }
 ```
 
-   使用useState申明状态：
+使用useState申明状态：
 
 ``` javascript
 import React, { useState, useCallback } from 'react';
@@ -131,6 +198,44 @@ function ExampleWithManyStates2() {
     }, []);
     // ...
 }
+```
+
+### 函数式更新
+
+setState还支持传入函数来更新状态，如果新值的状态需要使用到旧值就可以用函数式更新。
+
+``` javascript
+function Counter({initialCount}) {
+    const [count, setCount] = useState(initialCount);
+    return (
+        <>
+        Count: {count}
+        <button onClick={() => setCount(initialCount)}>Reset</button>
+        <button onClick={() => setCount(prevCount => prevCount + 1)}>+</button>
+        <button onClick={() => setCount(prevCount => prevCount - 1)}>-</button>
+        </>
+    );
+}
+```
+
+注意：useState不会自动合并更新对象，你可以使用对象扩展语法对对象进行更新。
+
+``` javascript
+setState(prevState => {
+    // Object.assign would also work
+    return {...prevState, ...updatedValues};
+});
+```
+
+### 懒初始化
+
+useState的初始化值还可以是函数，可以把一些昂贵的操作放在函数里，这样只有第一次渲染会执行，后面就不会执行了。
+
+``` javascript
+const [state, setState] = useState(() => {
+  const initialState = someExpensiveComputation(props);
+  return initialState;
+});
 ```
 
 - useEffect
