@@ -132,122 +132,122 @@ ESLint配置：
 
    useState是用来申明组件状态变量的Hook，等价于Class组件的this.state。
 
-Class组件申明状态：
+    Class组件申明状态：
 
-``` javascript
-class Example extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-        count: 0
-        };
+    ``` javascript
+    class Example extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+            count: 0
+            };
+        }
+
+        onBtnClick = () => {
+            this.setState({
+                count: ++this.state.count
+            });
+        }
+
+        render() {
+            return <div><span>{this.state.count}</span><button onClick={this.onBtnClick}>按钮</button></div>;
+        }
+    }
+    ```
+
+    使用useState申明状态：
+
+    ``` javascript
+    import React, { useState, useCallback } from 'react';
+
+    function Example() {
+        const [count, setCount] = useState(0);
+        const btnClickHandler = useCallback(() => {
+            setCount((count) => {
+                return count + 1;
+            });
+        }, []);
+
+
+        return <div><span>{count}</span><button onClick={btnClickHandler}>按钮</button></div>
+    }
+    ```
+
+    useCallback主要是解决re-render的问题，后面会介绍到。
+
+    我们可以看到useState返回一个数组，数组第一个是可读状态，第二个参数是设置状态，我们可以看到useState返回一个数组，数组第一个是可读状态，第二个参数是设置状态。的参数传入的是状态的初始值。
+
+    如果我们想要用多个状态可以使用多个useState，可以使用两种方式：
+
+    ``` javascript
+    // 第一种
+    function ExampleWithManyStates() {
+        // Declare multiple state variables!
+        const [age, setAge] = useState(42);
+        const [fruit, setFruit] = useState('banana');
+        const [todos, setTodos] = useState([{ text: 'Learn Hooks' }]);
+
+        // ...
     }
 
-    onBtnClick = () => {
-        this.setState({
-            count: ++this.state.count
+    // 第二种
+    function ExampleWithManyStates2() {
+        // Declare multiple state variables!
+        const [state, setState] = useState({
+            age: 42,
+            fruit: 'banana',
+            todos: [{ text: 'Learn Hooks' }]
         });
+
+        // ...
+
+        // setState example
+        const handler = useCallback(() => {
+            setState((state) => {
+                return { ...state, age: 18 };
+            });
+        }, []);
+        // ...
     }
+    ```
 
-    render() {
-        return <div><span>{this.state.count}</span><button onClick={this.onBtnClick}>按钮</button></div>;
+    ### 函数式更新
+
+    setState还支持传入函数来更新状态，如果新值的状态需要使用到旧值就可以用函数式更新。
+
+    ``` javascript
+    function Counter({initialCount}) {
+        const [count, setCount] = useState(initialCount);
+        return (
+            <>
+            Count: {count}
+            <button onClick={() => setCount(initialCount)}>Reset</button>
+            <button onClick={() => setCount(prevCount => prevCount + 1)}>+</button>
+            <button onClick={() => setCount(prevCount => prevCount - 1)}>-</button>
+            </>
+        );
     }
-}
-```
+    ```
 
-使用useState申明状态：
+    注意：useState不会自动合并更新对象，你可以使用对象扩展语法对对象进行更新。
 
-``` javascript
-import React, { useState, useCallback } from 'react';
-
-function Example() {
-    const [count, setCount] = useState(0);
-    const btnClickHandler = useCallback(() => {
-        setCount((count) => {
-            return count + 1;
-        });
-    }, []);
-
-
-    return <div><span>{count}</span><button onClick={btnClickHandler}>按钮</button></div>
-}
-```
-
-useCallback主要是解决re-render的问题，后面会介绍到。
-
-我们可以看到useState返回一个数组，数组第一个是可读状态，第二个参数是设置状态，我们可以看到useState返回一个数组，数组第一个是可读状态，第二个参数是设置状态。的参数传入的是状态的初始值。
-
-如果我们想要用多个状态可以使用多个useState，可以使用两种方式：
-
-``` javascript
-// 第一种
-function ExampleWithManyStates() {
-    // Declare multiple state variables!
-    const [age, setAge] = useState(42);
-    const [fruit, setFruit] = useState('banana');
-    const [todos, setTodos] = useState([{ text: 'Learn Hooks' }]);
-
-    // ...
-}
-
-// 第二种
-function ExampleWithManyStates2() {
-    // Declare multiple state variables!
-    const [state, setState] = useState({
-        age: 42,
-        fruit: 'banana',
-        todos: [{ text: 'Learn Hooks' }]
+    ``` javascript
+    setState(prevState => {
+        // Object.assign would also work
+        return {...prevState, ...updatedValues};
     });
+    ```
 
-    // ...
+    ### 懒初始化
 
-    // setState example
-    const handler = useCallback(() => {
-        setState((state) => {
-            return { ...state, age: 18 };
-        });
-    }, []);
-    // ...
-}
-```
+    useState的初始化值还可以是函数，可以把一些昂贵的操作放在函数里，这样只有第一次渲染会执行，后面就不会执行了。
 
-### 函数式更新
-
-setState还支持传入函数来更新状态，如果新值的状态需要使用到旧值就可以用函数式更新。
-
-``` javascript
-function Counter({initialCount}) {
-    const [count, setCount] = useState(initialCount);
-    return (
-        <>
-        Count: {count}
-        <button onClick={() => setCount(initialCount)}>Reset</button>
-        <button onClick={() => setCount(prevCount => prevCount + 1)}>+</button>
-        <button onClick={() => setCount(prevCount => prevCount - 1)}>-</button>
-        </>
-    );
-}
-```
-
-注意：useState不会自动合并更新对象，你可以使用对象扩展语法对对象进行更新。
-
-``` javascript
-setState(prevState => {
-    // Object.assign would also work
-    return {...prevState, ...updatedValues};
-});
-```
-
-### 懒初始化
-
-useState的初始化值还可以是函数，可以把一些昂贵的操作放在函数里，这样只有第一次渲染会执行，后面就不会执行了。
-
-``` javascript
-const [state, setState] = useState(() => {
-  const initialState = someExpensiveComputation(props);
-  return initialState;
-});
-```
+    ``` javascript
+    const [state, setState] = useState(() => {
+    const initialState = someExpensiveComputation(props);
+    return initialState;
+    });
+    ```
 
 - useEffect
 
