@@ -1,6 +1,6 @@
 # 为什么要用React Hooks？
 
-前言：Hooks在React16.8上登场，主要是解决组件逻辑复用和class组件存在的问题。Hooks只能在函数组件中使用，意味着class组件不能使用它，React团队也希望Hooks能慢慢替换掉class组件，以后新的组件可以使用Hooks来编写。当然React也不打算去掉class组件，毕竟还是不少人在用。
+    前言：Hooks在React16.8上登场，主要是解决组件逻辑复用和class组件存在的问题。Hooks只能在函数组件中使用，意味着class组件不能使用它，React团队也希望Hooks能慢慢替换掉class组件，以后新的组件可以使用Hooks来编写。当然React也不打算去掉class组件，毕竟还是不少人在用。
 
 ## Class组件的现状
 
@@ -8,32 +8,37 @@
 
  1. 组件之间很难复用状态逻辑；
 
-   虽然已经有一些解决方案存在了，例如：render props和高阶组件，但它们都需要你重新组织组件，而且会使你的组件变的笨重和难以理解，更蛋疼的地方是会把你的组件嵌套越来越深。
+    虽然已经有一些解决方案存在了，例如：render props和高阶组件，但它们都需要你重新组织组件，而且会使你的组件变的笨重和难以理解，更蛋疼的地方是会把你的组件嵌套越来越深。
 
  2. 复杂组件变得难以理解；
 
-   举个例子，我们需要在componentDidMount和componentDidUpdate上进行拉取数据，但我们也会在componentDidMount里面注册和非拉取数据逻辑相关的事件监听，然后在componentWillUnmount清除事件监听。生命周期里面有太多逻辑混杂在一起。
+    举个例子，我们需要在componentDidMount和componentDidUpdate上进行拉取数据，但我们也会在componentDidMount里面注册和非拉取数据逻辑相关的事件监听，然后在componentWillUnmount清除事件监听。生命周期里面有太多逻辑混杂在一起。
  3. Class中的this容易让人疑惑；
-   this的问题很多人都遇到过，在render方法里面引入函数我们还要先bind一下。
+ 
+    this的问题很多人都遇到过，在render方法里面引入函数我们还要先bind一下。
 
 ## Hooks的思想
 
 ### 什么是Hooks？
 
-Hooks是一个React状态和生命周期的钩子。Hooks可以很好的解决Class组件存在的问题。我们不再需要记各种生命周期方法，直接使用useEffect就行了，使用Hooks后我们也不再需要this了。
+    Hooks是一个React状态和生命周期的钩子。
+
+Hooks可以很好的解决Class组件存在的问题。我们不再需要记各种生命周期方法，直接使用useEffect就行了，使用Hooks后我们也不再需要this了。
 使用Hooks有一些潜规则，在使用之前需要我们先了解，不然容易一脸疑惑。
 
 #### 只在函数组件最顶层调用Hooks
 
-不要在循环语句、条件语句或者嵌套函数内调用Hooks。这是为了确保在组件渲染时Hooks被调用的顺序是一致的。
+    不要在循环语句、条件语句或者嵌套函数内调用Hooks。这是为了确保在组件渲染时Hooks被调用的顺序是一致的。
 
 #### 只在React函数组件内使用Hooks
 
-不要在正常JS函数里使用Hooks，但你可以在React函数组件和自定义Hooks里面调用Hooks。
+    不要在正常JS函数里使用Hooks，但你可以在React函数组件和自定义Hooks里面调用Hooks。
 
 ### Hooks的运行机制
 
-Hooks是怎么知道状态对应哪个useState？答案是依赖于Hooks的调用顺序。
+Hooks是怎么知道状态对应哪个useState？
+
+    答案是依赖于Hooks的调用顺序。
 
 ``` javascript
 function Form() {
@@ -80,6 +85,7 @@ useEffect(updateTitle)     // 4. Replace the effect for updating the title
 ```
 
 只要每次渲染Hooks的调用顺序一样，React就可以把它们和局部状态联系起来。
+
 如果我们想要把Hook放在条件语句里就会导致出问题，这就是为什么我们只在函数组件最顶层调用Hooks。如果我们想要有条件判断地运行Hooks，可以把条件语句放在Hooks里面：
 
 ``` javascript
@@ -91,7 +97,7 @@ useEffect(function persistForm() {
 });
 ```
 
-## React内置Hooks介绍
+#### 开始前
 
 在使用Hooks之前，我们安装一下eslint-plugin-react-hooks，它可以帮助我们提醒和修复Hooks的问题。
 
@@ -114,6 +120,9 @@ ESLint配置：
     }
 }
 ```
+
+
+## React内置Hooks介绍
 
 - useState
 
@@ -165,7 +174,9 @@ function Example() {
 ```
 
 useCallback主要是解决re-render的问题，后面会介绍到。
+
 我们可以看到useState返回一个数组，数组第一个是可读状态，第二个参数是设置状态，我们可以看到useState返回一个数组，数组第一个是可读状态，第二个参数是设置状态。的参数传入的是状态的初始值。
+
 如果我们想要用多个状态可以使用多个useState，可以使用两种方式：
 
 ``` javascript
