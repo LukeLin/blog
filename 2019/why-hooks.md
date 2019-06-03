@@ -7,8 +7,11 @@
 现在我们用到的组件基本上都是class组件，但class组件存在以下缺点：
 
  1. 组件之间很难复用状态逻辑；
+
    虽然已经有一些解决方案存在了，例如：render props和高阶组件，但它们都需要你重新组织组件，而且会使你的组件变的笨重和难以理解，更蛋疼的地方是会把你的组件嵌套越来越深。
+
  2. 复杂组件变得难以理解；
+ 
    举个例子，我们需要在componentDidMount和componentDidUpdate上进行拉取数据，但我们也会在componentDidMount里面注册和非拉取数据逻辑相关的事件监听，然后在componentWillUnmount清除事件监听。生命周期里面有太多逻辑混杂在一起。
  3. Class中的this容易让人疑惑；
    this的问题很多人都遇到过，在render方法里面引入函数我们还要先bind一下。
