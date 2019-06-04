@@ -139,7 +139,7 @@ ESLint配置：
         constructor(props) {
             super(props);
             this.state = {
-            count: 0
+                count: 0
             };
         }
 
