@@ -40,7 +40,7 @@ Hooks是怎么知道状态对应哪个useState？
 
     答案是依赖于Hooks的调用顺序。
 
-``` javascript
+``` jsx
 function Form() {
     // 1. Use the name state variable
     const [name, setName] = useState('Mary');
@@ -64,7 +64,7 @@ function Form() {
 
 上面的代码每次渲染顺序是：
 
-``` javascript
+``` jsx
 // ------------
 // First render
 // ------------
@@ -88,7 +88,7 @@ useEffect(updateTitle)     // 4. Replace the effect for updating the title
 
 如果我们想要把Hook放在条件语句里就会导致出问题，这就是为什么我们只在函数组件最顶层调用Hooks。如果我们想要有条件判断地运行Hooks，可以把条件语句放在Hooks里面：
 
-``` javascript
+``` jsx
 useEffect(function persistForm() {
     // 👍 We're not breaking the first rule anymore
     if (name !== '') {
@@ -126,7 +126,7 @@ ESLint配置：
 
 - useState
 
-    ``` javascript
+    ``` jsx
     const [state, setState] = useState(initialState);
     ```
 
@@ -134,7 +134,7 @@ ESLint配置：
 
     Class组件申明状态：
 
-    ``` javascript
+    ``` jsx
     class Example extends React.Component {
         constructor(props) {
             super(props);
@@ -157,7 +157,7 @@ ESLint配置：
 
     使用useState申明状态：
 
-    ``` javascript
+    ``` jsx
     import React, { useState, useCallback } from 'react';
 
     function Example() {
@@ -179,7 +179,7 @@ ESLint配置：
 
     如果我们想要用多个状态可以使用多个useState，可以使用两种方式：
 
-    ``` javascript
+    ``` jsx
     // 第一种
     function ExampleWithManyStates() {
         // Declare multiple state variables!
@@ -215,7 +215,7 @@ ESLint配置：
 
     setState还支持传入函数来更新状态，如果新值的状态需要使用到旧值就可以用函数式更新。
 
-    ``` javascript
+    ``` jsx
     function Counter({initialCount}) {
         const [count, setCount] = useState(initialCount);
         return (
@@ -231,7 +231,7 @@ ESLint配置：
 
     注意：useState不会自动合并更新对象，你可以使用对象扩展语法对对象进行更新。
 
-    ``` javascript
+    ``` jsx
     setState(prevState => {
         // Object.assign would also work
         return {...prevState, ...updatedValues};
@@ -242,10 +242,10 @@ ESLint配置：
 
     useState的初始化值还可以是函数，可以把一些昂贵的操作放在函数里，这样只有第一次渲染会执行，后面就不会执行了。
 
-    ``` javascript
+    ``` jsx
     const [state, setState] = useState(() => {
     const initialState = someExpensiveComputation(props);
-    return initialState;
+        return initialState;
     });
     ```
 
