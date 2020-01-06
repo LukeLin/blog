@@ -1,6 +1,8 @@
-### 哈希函数：Hash
+## 深入了解NodeJS加密模块Crypto
 
-### 对称密钥加密：Cipher、Decipher
+## 哈希函数：Hash
+
+## 对称密钥加密：Cipher、Decipher
 
 过程：
 
@@ -12,9 +14,52 @@
   实现算法有：凯撒密码，AES（Advanced Encryption Standard）、DES（Data Encryption Standard）、动态口令等。<br>
   推荐：AES
 
-### 非对称密钥加密：
+``` javascript
+const crypto = require('crypto');
 
-#### 公开密钥加密：
+const algorithm = 'aes-192-cbc';
+const password = 'Password used to generate key';
+// Use the async `crypto.scrypt()` instead.
+const key = crypto.scryptSync(password, 'salt', 24);
+// Use `crypto.randomBytes` to generate a random iv instead of the static iv
+// shown here.
+const iv = Buffer.alloc(16, 0); // Initialization vector.
+
+const cipher = crypto.createCipheriv(algorithm, key, iv);
+
+let encrypted = cipher.update('some clear text data', 'utf8', 'hex');
+encrypted += cipher.final('hex');
+console.log(encrypted);
+// Prints: e5f79c5915c02171eec6b212d5520d44480993d7d622a7c4c2da32f6efda0ffa
+```
+
+``` javascript
+const crypto = require('crypto');
+
+const algorithm = 'aes-192-cbc';
+const password = 'Password used to generate key';
+// Use the async `crypto.scrypt()` instead.
+const key = crypto.scryptSync(password, 'salt', 24);
+// The IV is usually passed along with the ciphertext.
+const iv = Buffer.alloc(16, 0); // Initialization vector.
+
+const decipher = crypto.createDecipheriv(algorithm, key, iv);
+
+// Encrypted using same algorithm, key and iv.
+const encrypted =
+  'e5f79c5915c02171eec6b212d5520d44480993d7d622a7c4c2da32f6efda0ffa';
+let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+decrypted += decipher.final('utf8');
+console.log(decrypted);
+// Prints: some clear text data
+```
+
+openssl list -cipher-algorithms可以列出支持的加密算法
+
+
+## 非对称密钥加密
+
+### 公开密钥加密
 
 过程：
 
@@ -28,9 +73,30 @@
   推荐：RSA
   RSA：privateEncrypt、privateDecrypt、publicEncrypt、publicDecrypt
 
-#### 混合加密
+``` javascript
+// 公钥加密
+let encryptString = crypto.publicEncrypt({
+      key: publicKey,
+      padding: crypto.constants.RSA_NO_PADDING
+    }, Buffer.from('需要加密的内容'));
+encryptString = encryptString.toString('base64');
 
-过程：<br>
+// 私钥加密
+let encryptString = crypto.privateEncrypt({
+      key: privateKey,
+      padding: crypto.constants.RSA_NO_PADDING
+    }, Buffer.from('需要加密的内容'));
+encryptString = encryptString.toString('base64');
+```
+
+``` javascript
+crypto.privateDecrypt(privateKey, buffer);
+crypto.publicDecrypt(key, buffer);
+```
+
+### 混合加密
+
+过程：
 
 - a）接收方 B 事先生成公钥和私钥
 - b）B 将公钥发送给 A
@@ -40,7 +106,7 @@
   优点：使用处理速度快的对称密钥加密数据同时保证对称密钥的安全性
   HTTPS 的 TLS 加密就是用的混合加密
 
-#### 密钥交换协议
+### 密钥交换协议
 
 过程：
 
@@ -55,7 +121,27 @@
   优点：DH 利用“离散对数问题”解决中间人攻击<br>
   实现算法有：DiffieHellman、DiffieHellmanGroup、ECDH
 
-#### 消息认证码 Hmac：Hmac
+``` javascript
+const crypto = require('crypto');
+const assert = require('assert');
+
+// Generate Alice's keys...
+const alice = crypto.createDiffieHellman(2048);
+const aliceKey = alice.generateKeys();
+
+// Generate Bob's keys...
+const bob = crypto.createDiffieHellman(alice.getPrime(), alice.getGenerator());
+const bobKey = bob.generateKeys();
+
+// Exchange and generate the secret...
+const aliceSecret = alice.computeSecret(bobKey);
+const bobSecret = bob.computeSecret(aliceKey);
+
+// OK
+assert.strictEqual(aliceSecret.toString('hex'), bobSecret.toString('hex'));
+```
+
+### 消息认证码 Hmac：Hmac
 
 过程：
 
@@ -69,7 +155,17 @@
   优点：可以实现认证和检测篡改功能<br>
   缺点：MAC 不能确定密钥由哪方生成（A 或 B）
 
-#### 数字签名： Sign、Verify
+``` javascript
+const crypto = require('crypto');
+const hmac = crypto.createHmac('sha256', 'a secret');
+
+hmac.update('some data to hash');
+console.log(hmac.digest('hex'));
+// Prints:
+//   7fd04df92f636fd450bc841c9418e5825c17f33ad9c87c518115a45971f7f77e
+```
+
+### 数字签名： Sign、Verify
 
 过程：
 
@@ -82,7 +178,18 @@
   优点：可以确认谁是消息发送者<br>
   缺点：无法确定公钥的制造者是谁<br>
 
-#### 数字证书：Certificate
+``` javascript
+let sign = crypto.createSign('RSA-SHA256')
+      .update('签名内容')
+      .sign(this.AppPrivateKey, 'base64');
+```
+
+``` javascript
+let verify = crypto.createVerify('RSA-SHA256');
+let result = verify.verify(publicKey, '签名内容');
+```
+
+### 数字证书：Certificate
 
 过程：
 
@@ -97,3 +204,19 @@
 - i）B 对证书内的签名进行验证，判断它是否为认证中心给出的签名。证书中的签名只能用认证中心的公钥 PC 进行验证。如果验证结果没有异常，就能说明这份证书的确是由认证中心发行的
 - j）确认了证书是由认证中心发行的，且邮件地址（域名）就是 A 的之后，B 从证书中取出 A 的公钥 PA<br>
   优点：解决数字签名的缺点
+
+``` javascript
+const { Certificate } = require('crypto');
+const spkac = getSpkacSomehow();
+
+const challenge = Certificate.exportChallenge(spkac);
+console.log(challenge.toString('utf8'));
+// Prints: the challenge as a UTF8 string
+
+const publicKey = Certificate.exportPublicKey(spkac);
+console.log(publicKey);
+// Prints: the public key as <Buffer ...>
+
+console.log(Certificate.verifySpkac(Buffer.from(spkac)));
+// Prints: true or false
+```
